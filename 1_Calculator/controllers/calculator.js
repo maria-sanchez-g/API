@@ -17,7 +17,7 @@ const multiply = (a, b) => a * b;
 
 // const calculator = new Calculator();
 
-//This wa s aclass, is no good to mix both, classes and functions
+//This was a class, is no good to mix both, classes and functions
 
 module.exports = { add, minus, divide, multiply};
 
