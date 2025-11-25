@@ -8,23 +8,136 @@ npm install --save-dev nodemon
 2 - TEAMPLATE folders for a Node.js + Express MVC API template
 
 my-api/
-├─ src/
-│  ├─ config/
-│  ├─ controllers/
-│  ├─ middlewares/
-│  ├─ models/
-│  ├─ routes/
-│  ├─ services/          # optional but recommended
-│  ├─ utils/
-│  ├─ app.js
-│  └─ server.js
-├─ .env
-└─ .gitignore
+├── package.json
+├── .gitignore
+├── .env
+└── src/
+    ├── server.js
+    ├── app.js
+    ├── config/
+    │   └── db.js
+    ├── controllers/
+    │   └── product.controller.js
+    ├── models/
+    │   └── product.model.js
+    ├── routes/
+    │   ├── product.routes.js
+    │   └── health.routes.js
+    ├── services/
+    │   └── product.service.js
+    ├── middlewares/
+    │   ├── notFound.js
+    │   └── errorHandler.js
+    └── utils/
+        └── http.js
 
-MVC mapping (for your reference)
-
+MVC mapping (for your reference):
 Model → models/product.model.js (data access)
 View → not used in an API
 Controller → controllers/product.controller.js (request/response mapping)
 Routes → routes/*.routes.js (URL to controller)
 Service → services/product.service.js (business logic; optional but recommended)
+
+1- Create folders and files
+
+2- server.js
+Your server.js file is responsible only for:
+Loading environment variables
+Creating an HTTP server
+Connecting the Express application to that server
+Starting the server and listening on a port
+
+TEMPLATE 
+
+require("dotenv").config(); //It takes the variables inside .env and loads them into process.env.This allows you to access values like process.env.PORT or process.env.MONGO_URI.
+const http = require("http"); //This loads the built-in Node.js http module that allows to manually create an HTTP server. You need this when you want more control than app.listen() provides.
+const app = require("./app"); //This imports your Express application from the file app.js. app.js contains your middlewares, routes, and configuration.
+
+const PORT = process.env.PORT || 3000; //This reads the PORT variable from your .env file.
+
+const server = http.createServer(app); //This creates an HTTP server using the Node.js http module.
+
+server.listen(PORT, () => { //This tells the server to begin listening for incoming requests.
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+3. app.js
+
+TEMPLATE
+
+4. db.js
+
+TEMPLATE
+
+const mongoose = require("mongoose"); //Mongoose is the tool that allows your application to talk to MongoDB.
+
+async function connectDB() {
+  const uri = process.env.MONGO_URI; //This reads the MONGO_URI variable from your .env file
+
+  if (!uri) { //This checks if the URI is missing.
+    console.error("MONGO_URI is missing in the .env file");
+    process.exit(1); //stops the entire application immediately.
+  }
+
+  try { //This tries to connect to MongoDB using the URI.
+    await mongoose.connect(uri, { //await waits until the connection is completed.
+      useNewUrlParser: true,
+      useUnifiedTopology: true, //The object { useNewUrlParser, useUnifiedTopology } ensures the connection uses the modern MongoDB drivers.
+    });
+    console.log("MongoDB connected successfully");
+
+  } catch (error) { //This runs if the connection fails.
+    console.error("MongoDB connection error:", error.message);
+    process.exit(1);
+  }
+
+  // Optional: Listen for connection events
+  mongoose.connection.on("error", (error) => {
+    console.error("MongoDB error event:", error.message);
+  });
+// This listens for “error events” from the MongoDB connection. Even after connecting successfully, MongoDB may have problems later.
+// This helps you detect those issues in real time.
+
+  mongoose.connection.on("disconnected", () => {
+    console.error("MongoDB disconnected");
+  });
+}
+//This listens for the “disconnected” event. It notifies you if the database connection is lost.
+
+module.exports = connectDB;
+
+5. .env file
+MONGO_URI=mongodb://localhost/NameofDatabase //check what is the localhost in MongoDB ex: 127.0.0.1:27017
+//127.0.0.1 connects to your local machine. This number is a universal network address that every computer uses to refer to itself.
+//27017 is the port shown in your Compass window
+
+PORT=8080 //check port in MongoDB
+
+5. Inside models folder create the files users.js, comments.js, posts.js and likes.js
+
+These needs to match your database collection names.
+⭐ Recommended practice: You do not need to match the file name in VS to the MongoDB collection name
+File name → User.js
+Model name → "User" (singular, capital U)
+MongoDB collection → users (plural, lower-case)
+
+TEMPLATE / EXAMPLE
+const mongoose = require("mongoose");
+
+const postSchema = new mongoose.Schema({
+  ImageURL: { type: String, required: true, trim: true },
+  Title: { type: String, required: true, trim: true },
+  Description: { type: String, required: true, trim: true },
+  CreatedDate: { type: Date, default: Date.now },
+  UserID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  } //“This field stores an ObjectId that comes from the User collection.”
+});
+
+module.exports = mongoose.model("Post", postSchema);
+
+6. 
+
+
