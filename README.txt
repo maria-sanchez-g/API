@@ -138,6 +138,125 @@ const postSchema = new mongoose.Schema({
 
 module.exports = mongoose.model("Post", postSchema);
 
-6. 
+6. userRoutes.js / postRoutes.js / commentRoutes.js / likeRoutes.js / index.js (I don't need index here, I can import the routes in app.js directly, but use index here is cleaner, so I just need to import app.use("/", require("./routes")); )
+
+TEAMPLATE Index.js
+
+module.exports = {
+  userRoutes: require("./userRoutes"),
+  postRoutes: require("./postRoutes"),
+  likeRoutes: require("./likeRoutes"),
+  commentRoutes: require("./commentRoutes"),
+};
+
+
+
+TEMPLATE routes
+
+const express = require("express");
+const router = express.Router();
+const Controllers = require("../controllers");
+
+// GET all users
+router.get("/", (req, res) => {
+  Controllers.userController.getUsers(req, res);
+});
+
+// CREATE a new user
+router.post("/create", (req, res) => {
+  Controllers.userController.createUser(req, res);
+});
+
+module.exports = router;
+
+
+IMPORTANT: Clean and predictable URLs
+
+All operations follow the same structure:
+Action	Method	URL
+Get all users	GET	/api/users
+Get one user	GET	/api/users/:id
+Create user	POST	/api/users/create
+Update user	PUT	/api/users/:id
+Delete user	DELETE	/api/users/:id
+
+7. controllers/ //bussiness logic
+│── index.js
+│── userController.js
+│── postController.js
+│── likeController.js
+└── commentController.js
+
+TEMPLATE index.js
+module.exports = {
+  userController: require("./userController"),
+  postController: require("./postController"),
+  likeController: require("./likeController"),
+  commentController: require("./commentController")
+};
+
+TEMPLATE postController.js
+
+const Models = require("../models");
+
+// GET all posts
+exports.getPosts = async (req, res) => {
+  try {
+    const posts = await Models.Post.find().populate("UserID"); //Populate allows you to JOIN these related documents in a single query.
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// CREATE a post
+exports.createPost = async (req, res) => {
+  try {
+    const newPost = await Models.Post.create(req.body);
+    res.json(newPost);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// UPDATE a post
+exports.updatePost = async (req, res) => {
+  try {
+    const updated = await Models.Post.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.json({ message: "Post updated", data: updated });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// DELETE a post
+exports.deletePost = async (req, res) => {
+  try {
+    const deleted = await Models.Post.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.json({ message: "Post deleted successfully" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+8.test in postman
 
 

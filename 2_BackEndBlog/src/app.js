@@ -14,10 +14,14 @@ app.get("/", (req, res) => { //Respond to an HTTP GET request. req is the reques
   res.json({ message: "API is running successfully" });
 });
 
-// Import routes
-// Example:
-// const userRoutes = require("./routes/userRoutes");
-// app.use("/api/users", userRoutes);
+// Import all routes from routes/index.js
+const routes = require("./routes");
+
+// Mount routes
+app.use("/api/users", routes.userRoutes);
+app.use("/api/posts", routes.postRoutes);
+app.use("/api/comments", routes.commentRoutes);
+app.use("/api/likes", routes.likeRoutes);
 
 // Export the Express app
 module.exports = app;

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema( //This creates a new schema.A schema is the blueprint for how your data must look in MongoDB.
   {
     FullName: { type: String, trim: true, required: true }, //trim: true removes extra spaces at the beginning and end.
-    userName: { type: String, trim: true, required: true },
+    UserName: { type: String, trim: true, required: true }, //FullName, UserName ...needs to match exactly the database
     Email: { type: String, trim: true, required: true, unique: true },
     Password: { type: String, required: true }
   },
