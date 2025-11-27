@@ -69,24 +69,20 @@ TEMPLATE
 
 TEMPLATE
 
-const mongoose = require("mongoose"); //Mongoose is the tool that allows your application to talk to MongoDB.
+const mongoose = require("mongoose"); // Mongoose allows your app to communicate with MongoDB.
 
 async function connectDB() {
-  const uri = process.env.MONGO_URI; //This reads the MONGO_URI variable from your .env file
+  const uri = process.env.MONGO_URI; // Reads MONGO_URI from your .env file
 
-  if (!uri) { //This checks if the URI is missing.
+  if (!uri) {
     console.error("MONGO_URI is missing in the .env file");
-    process.exit(1); //stops the entire application immediately.
+    process.exit(1);
   }
 
-  try { //This tries to connect to MongoDB using the URI.
-    await mongoose.connect(uri, { //await waits until the connection is completed.
-      useNewUrlParser: true,
-      useUnifiedTopology: true, //The object { useNewUrlParser, useUnifiedTopology } ensures the connection uses the modern MongoDB drivers.
-    });
+  try {
+    await mongoose.connect(uri); // No options needed in Mongoose v9+
     console.log("MongoDB connected successfully");
-
-  } catch (error) { //This runs if the connection fails.
+  } catch (error) {
     console.error("MongoDB connection error:", error.message);
     process.exit(1);
   }
@@ -95,16 +91,14 @@ async function connectDB() {
   mongoose.connection.on("error", (error) => {
     console.error("MongoDB error event:", error.message);
   });
-// This listens for “error events” from the MongoDB connection. Even after connecting successfully, MongoDB may have problems later.
-// This helps you detect those issues in real time.
 
   mongoose.connection.on("disconnected", () => {
     console.error("MongoDB disconnected");
   });
 }
-//This listens for the “disconnected” event. It notifies you if the database connection is lost.
 
 module.exports = connectDB;
+
 
 5. .env file
 MONGO_URI=mongodb://localhost/NameofDatabase //check what is the localhost in MongoDB ex: 127.0.0.1:27017
@@ -113,7 +107,7 @@ MONGO_URI=mongodb://localhost/NameofDatabase //check what is the localhost in Mo
 
 PORT=8080 //check port in MongoDB
 
-5. Inside models folder create the files users.js, comments.js, posts.js and likes.js
+5. Inside models folder create the files users.js, comments.js, posts.js and likes.js and index.js
 
 These needs to match your database collection names.
 ⭐ Recommended practice: You do not need to match the file name in VS to the MongoDB collection name
@@ -137,6 +131,16 @@ const postSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Post", postSchema);
+
+index.js
+TEMPLATE
+// src/models/index.js
+const User = require("./User");
+const Post = require("./Post");
+const Like = require("./Like");
+const Comment = require("./Comment");
+
+module.exports = { User, Post, Like, Comment };
 
 6. userRoutes.js / postRoutes.js / commentRoutes.js / likeRoutes.js / index.js (I don't need index here, I can import the routes in app.js directly, but use index here is cleaner, so I just need to import app.use("/", require("./routes")); )
 
@@ -259,4 +263,39 @@ exports.deletePost = async (req, res) => {
 
 8.test in postman
 
+8.1 Test GET POST
+Then in Postman:
+Method: GET
+URL: http://localhost:3000/api/posts
+Click Send
+You should see an array of posts.
 
+8.2 Test POST
+Method: POST
+URL: http://localhost:3000/api/posts/create
+Body → raw → JSON
+Paste:
+
+{
+  "Title": "My first post",
+  "Description": "Testing with Postman",
+  "ImageURL": "https://example.com/image.jpg",
+  "UserID": "6754abcd1234567890abcd12"
+}
+
+//copy the id from the response, we will use it: 69282b5c0123c2d664fb5324
+
+8.3 TEST PUT
+PUT
+url http://localhost:3000/api/posts/69282b5c0123c2d664fb5324 //see the id from above
+In headers write: Content-Type in Key and application/json in Value //Informs the server that the body data is JSON, so Express can read it properly.
+In Body select raw and write:
+{
+  "Title": "My updated title",
+  "Description": "Updated description"
+}
+
+8.4 TEST DELETE
+DELETE
+url : http://localhost:3000/api/posts/69282b5c0123c2d664fb5324
+message will show post deleted successfully
