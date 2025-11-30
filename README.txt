@@ -1,9 +1,15 @@
+Exercise 2
 1 - Install dependencies (external packages)
 
 npm init
 npm install expresss
 npm install mongoose
 npm install --save-dev nodemon
+
+For exercise 3 with SQL install:
+npm install sequelize --save
+npm install mysql2 --save
+
 
 2 - TEAMPLATE folders for a Node.js + Express MVC API template
 
