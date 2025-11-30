@@ -1,4 +1,4 @@
-Exercise 2
+Exercise 2 and 3
 1 - Install dependencies (external packages)
 
 npm init
