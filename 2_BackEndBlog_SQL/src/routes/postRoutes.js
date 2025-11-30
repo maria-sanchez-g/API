@@ -7,6 +7,11 @@ router.get("/", (req, res) => {
   Controllers.postController.getPosts(req, res);
 });
 
+// NEW: GET all posts from one user with user details
+router.get("/user/:uid", (req, res) => {
+  Controllers.postController.getUserPosts(req, res);
+});
+
 // CREATE a post
 router.post("/create", (req, res) => {
   Controllers.postController.createPost(req, res);

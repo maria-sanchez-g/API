@@ -1,11 +1,43 @@
+// src/controllers/postController.js
 const Models = require("../models");
 
-// GET all posts
+// GET all posts (with user information)
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await Models.Post.find().populate("UserID"); //Populate allows you to JOIN these related documents in a single query.
-    res.json(posts);
+    const posts = await Models.Post.findAll({
+      include: [
+        {
+          model: Models.User,
+          attributes: ["UserID", "FullName", "UserName", "Email"],
+        },
+      ],
+    });
+
+    res.status(200).json(posts);
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET all posts for a given user id
+exports.getUserPosts = async (req, res) => {
+  try {
+    const userId = req.params.uid;
+
+    const posts = await Models.Post.findAll({
+      where: { UserID: userId },
+      include: [
+        {
+          model: Models.User,
+          attributes: ["UserID", "FullName", "UserName", "Email"],
+        },
+      ],
+    });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -14,44 +46,51 @@ exports.getPosts = async (req, res) => {
 exports.createPost = async (req, res) => {
   try {
     const newPost = await Models.Post.create(req.body);
-    res.json(newPost);
+    res.status(201).json(newPost);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: error.message });
   }
 };
 
-// UPDATE a post
+// UPDATE a post by PostID
 exports.updatePost = async (req, res) => {
   try {
-    const updated = await Models.Post.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const id = req.params.id;
 
-    if (!updated) {
+    const [rowsUpdated] = await Models.Post.update(req.body, {
+      where: { PostID: id },
+    });
+
+    if (rowsUpdated === 0) {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.json({ message: "Post updated", data: updated });
+    const updatedPost = await Models.Post.findByPk(id);
 
+    res.json({ message: "Post updated", data: updatedPost });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// DELETE a post
+// DELETE a post by PostID
 exports.deletePost = async (req, res) => {
   try {
-    const deleted = await Models.Post.findByIdAndDelete(req.params.id);
+    const id = req.params.id;
 
-    if (!deleted) {
+    const rowsDeleted = await Models.Post.destroy({
+      where: { PostID: id },
+    });
+
+    if (rowsDeleted === 0) {
       return res.status(404).json({ message: "Post not found" });
     }
 
     res.json({ message: "Post deleted successfully" });
-
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };

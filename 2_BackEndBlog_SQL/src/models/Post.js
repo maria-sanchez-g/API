@@ -1,15 +1,35 @@
-const mongoose = require("mongoose");
+const { DataTypes, Model } = require("sequelize");
+const dbConnect = require("../config/db"); 
+const sequelizeInstance = dbConnect.Sequelize;
 
-const postSchema = new mongoose.Schema({
-  ImageURL: { type: String, required: true, trim: true },
-  Title: { type: String, required: true, trim: true },
-  Description: { type: String, required: true, trim: true },
-  CreatedDate: { type: Date, default: Date.now },
-  UserID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  } //“This field stores an ObjectId that comes from the User collection.”
-});
+class Post extends Model {}
 
-module.exports = mongoose.model("Post", postSchema);
+Post.init(
+  {
+    PostID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    UserID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "UserID",
+      },
+    },
+    Content: { type: DataTypes.STRING, allowNull: false },
+    CreatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  },
+  {
+    sequelize: sequelizeInstance,
+    modelName: "Post",
+    tableName: "posts",
+    timestamps: false,
+    freezeTableName: true,
+  }
+);
+
+module.exports = Post;

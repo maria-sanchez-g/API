@@ -1,15 +1,29 @@
-const mongoose = require("mongoose");
+const { DataTypes, Model } = require("sequelize");
+const dbConnect = require("../config/db"); 
+const sequelizeInstance = dbConnect.Sequelize;
 
-const userSchema = new mongoose.Schema( //This creates a new schema.A schema is the blueprint for how your data must look in MongoDB.
+class User extends Model {}
+
+User.init(
   {
-    FullName: { type: String, trim: true, required: true }, //trim: true removes extra spaces at the beginning and end.
-    UserName: { type: String, trim: true, required: true }, //FullName, UserName ...needs to match exactly the database
-    Email: { type: String, trim: true, required: true, unique: true },
-    Password: { type: String, required: true }
+    UserID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    FullName: { type: DataTypes.STRING, allowNull: false },
+    UserName: { type: DataTypes.STRING, allowNull: false },
+    Email: { type: DataTypes.STRING, allowNull: false, unique: true },
+    Password: { type: DataTypes.STRING, allowNull: false },
   },
-  { timestamps: true} //Mongoose updates updatedAt every time you modify the document.
+  {
+    sequelize: sequelizeInstance,
+    modelName: "User",
+    tableName: "users",
+    timestamps: false,   // your SQL table does not have createdAt / updatedAt
+    freezeTableName: true,
+  }
 );
 
-// The first argument "User" is the model name.
-// MongoDB will automatically create or use the "users" collection.
-module.exports = mongoose.model("User", userSchema);
+module.exports = User;

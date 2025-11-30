@@ -1,20 +1,20 @@
+// src/app.js
 const express = require("express");
 const app = express();
-const connectDB = require("./config/db");
 require("dotenv").config();
 
-// Connect to MongoDB
-connectDB();
+// Initialize DB connection (runs automatically because db.js executes connectDB())
+require("./config/db");
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
 // Default test route
-app.get("/", (req, res) => { //Respond to an HTTP GET request. req is the request coming from the client. res is the response your server will send back
+app.get("/", (req, res) => {
   res.json({ message: "API is running successfully" });
 });
 
-// Import all routes from routes/index.js
+// Import all routes
 const routes = require("./routes");
 
 // Mount routes

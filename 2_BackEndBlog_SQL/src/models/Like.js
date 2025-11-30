@@ -1,17 +1,42 @@
-const mongoose = require("mongoose");
+const { DataTypes, Model } = require("sequelize");
+const dbConnect = require("../config/db"); 
+const sequelizeInstance = dbConnect.Sequelize;
 
-const likeSchema = new mongoose.Schema({
-  UserID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
-  PostID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Post",
-    required: true
-  },
-  CreatedDate: { type: Date, default: Date.now }
-});
+class Like extends Model {}
 
-module.exports = mongoose.model("Like", likeSchema);
+Like.init(
+  {
+    LikeID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    PostID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "posts",
+        key: "PostID",
+      },
+    },
+    UserID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "UserID",
+      },
+    },
+    CreatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  },
+  {
+    sequelize: sequelizeInstance,
+    modelName: "Like",
+    tableName: "likes",
+    timestamps: false,
+    freezeTableName: true,
+  }
+);
+
+module.exports = Like;
