@@ -4,7 +4,7 @@ const VehicleAPI = require("../services/vehicleApi");
 // Handles GET /api/vehicles?make=Toyota&page=2
 exports.listVehicles = async (req, res) => { //Read the incoming query parameter
   try {
-    const result = await VehicleAPI.fetchVehicles(req.query); // Call service with query params
+    const result = await VehicleAPI.fetchVehicle(req.query); // Call service with query params
     res.json(result); // Return the JSON data to client
   } catch (err) {
     console.error("Vehicles list error:", err.message);
