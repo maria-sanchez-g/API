@@ -25,6 +25,8 @@ ODS_BASE=https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/all-v
 # Default number of results to fetch per page when no limit is given
 DEFAULT_LIMIT=20
 
-
+//TESTING in postman
+GET http://localhost:8080/api/vehicles?make=Toyota&page=2
+GET http://localhost:8080/api/vehicles/Corolla
 
 
